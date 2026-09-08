@@ -44,8 +44,16 @@ async def show_lesson_signup(message: Message):
         return
 
     await message.answer(
-        "Great! 🎓\n\n"
-        "Please enter your preferred day and time for the lesson."
+        "<b>Готовы начать обучение?</b>\n\n"
+        "Vildly — это моя собственная компания, базирующаяся в Кальмаре. "
+        "Благодаря этому я могу выстраивать близкие отношения с клиентами, "
+        "быстро принимать решения и оставаться доступным тогда, когда это необходимо.\n\n"
+        "Oxana Sachenkova\n\n"
+        "Kalmar, Sweden\n\n"
+        "Wild Ly AB\n\n"
+        '<a href="mailto:info@vildly.co.uk">info@vildly.co.uk</a>\n\n'
+        '<a href="https://www.linkedin.com/in/oxanalu/">LinkedIn</a>',
+        parse_mode="HTML",
     )
 
 
