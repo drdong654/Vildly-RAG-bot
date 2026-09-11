@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from aiogram.types import CallbackQuery, Message
 from aiogram.types import FSInputFile
 from dotenv import load_dotenv
 
@@ -44,14 +44,21 @@ async def show_lesson_signup(message: Message):
         return
 
     await message.answer(
-        "Great! 🎓\n\n"
-        "Please enter your preferred day and time for the lesson."
+        "<b>Готовы начать обучение?</b>\n\n"
+        "Vildly — это моя собственная компания, базирующаяся в Кальмаре. "
+        "Благодаря этому я могу выстраивать близкие отношения с клиентами, "
+        "быстро принимать решения и оставаться доступным тогда, когда это необходимо.\n\n"
+        "Oxana Sachenkova\n\n"
+        "Kalmar, Sweden\n\n"
+        "Wild Ly AB\n\n"
+        '<a href="mailto:info@vildly.co.uk">info@vildly.co.uk</a>\n\n'
+        '<a href="https://www.linkedin.com/in/oxanalu/">LinkedIn</a>',
+        parse_mode="HTML",
     )
 
 
 class RegisterState(StatesGroup):
     waiting_for_phone = State()
-    waiting_for_email = State()
 
 
 async def show_start(message: Message):
@@ -202,30 +209,11 @@ async def get_phone(message: Message, state: FSMContext):
     if error:
         await message.answer(error)
         return
-    await state.update_data(phone_number=phone)
-    await state.set_state(RegisterState.waiting_for_email)
-    await message.answer("Now enter your email:", reply_markup=ReplyKeyboardRemove())
 
-
-@router.message(RegisterState.waiting_for_email)
-async def get_email(message: Message, state: FSMContext):
-    ### Email must be typed as text because it will be used for future mailings.
-    if not message.text:
-        await message.answer("Please enter your email as text.")
-        return
-
-    email = message.text.strip()
-    error = registration_service.validate_email(email)
-    if error:
-        await message.answer(error)
-        return
-
-    data = await state.get_data()
     user = message.from_user
     result = await registration_service.register(
         user_id=user.id,
-        phone=data["phone_number"],
-        email=email,
+        phone=phone,
         username=user.username,
         first_name=user.first_name,
         last_name=user.last_name,
