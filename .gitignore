@@ -58,3 +58,4 @@ dist/
 docker-compose.override.yml
 
 AI/assets/Sommerville.pdf
+knowledge/sommerville/*.pdf
