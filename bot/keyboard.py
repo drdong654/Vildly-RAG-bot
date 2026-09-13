@@ -21,7 +21,6 @@ resize_keyboard=True
 command_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Book a Lesson")],
-        [KeyboardButton(text="Courses")],
         [KeyboardButton(text="Back")],
     ],
     resize_keyboard=True

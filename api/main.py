@@ -11,6 +11,12 @@ from bot.db.repositories.users import UserRepository
 from sqladmin import Admin
 from api.admin import UserAdmin
 
+from pydantic import BaseModel, Field
+
+from AI.agent import build_agent
+from AI.knowledge import knowledge
+from AI.service import RagService
+
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -46,3 +52,48 @@ async def get_user(telegram_id: int, users: UserRepository = Depends(get_users))
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     return user
+
+rag_service = RagService(
+    knowledge=knowledge,
+    agent=build_agent(),
+)
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1)
+
+
+class AskResponse(BaseModel):
+    answer: str
+
+
+class SearchRequest(BaseModel):
+    question: str = Field(min_length=1)
+    limit: int = Field(default=5, ge=1, le=20)
+
+
+class SearchHit(BaseModel):
+    content: str
+    source: str | None
+    page: int | None
+    score: float | None
+
+@app.post("/search", response_model=list[SearchHit])
+async def search_knowledge(body: SearchRequest):
+    try:
+        results = await rag_service.search(
+            question=body.question,
+            limit=body.limit,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return [SearchHit(**result) for result in results]
+
+
+@app.post("/ask", response_model=AskResponse)
+async def ask_question(body: AskRequest):
+    try:
+        answer = await rag_service.answer(body.question)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return AskResponse(answer=answer)
