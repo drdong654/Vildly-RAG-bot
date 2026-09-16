@@ -16,7 +16,12 @@ services:
     command: uv run --no-sync uvicorn api.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: ${DATABASE_URL}
-    depends_on: [db]
+      KB_DATABASE_URL: ${KB_DATABASE_URL}
+      OLLAMA_HOST: ${OLLAMA_HOST}
+
+    depends_on:
+      - db
+      - ollama
     ports:
       - "8000:8000"
 
@@ -27,4 +32,17 @@ services:
     environment:
       TOKEN: ${TOKEN}
       DATABASE_URL: ${DATABASE_URL}
-    depends_on: [db]
+      KB_DATABASE_URL: ${KB_DATABASE_URL}
+      OLLAMA_HOST: ${OLLAMA_HOST}
+    depends_on:
+      - db
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  ollama_data:

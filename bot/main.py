@@ -15,6 +15,10 @@ from bot.db.engine import make_sessionmaker, init_models
 from bot.keyboard import main_keyboard, command_keyboard, contact_keyboard, courses_keyboard
 from services import UserStorage, RegistrationService
 
+from bot.handlers.ask import router as ask_router
+from bot.rag.agent import build_agent
+from bot.rag.service import RagService
+
 
 load_dotenv()
 
@@ -29,9 +33,11 @@ if not DATABASE_URL:
 engine, Session = make_sessionmaker(DATABASE_URL)
 user_storage = UserStorage(Session)
 registration_service = RegistrationService(user_storage)
-
+rag_service = RagService(build_agent())
 
 router = Router()
+
+
 
 async def show_lesson_signup(message: Message):
     user_id = message.from_user.id
@@ -259,7 +265,13 @@ async def main():
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
     dp.include_router(router)
-    await dp.start_polling(bot)
+    dp.include_router(ask_router)
+
+    await dp.start_polling(
+        bot,
+        rag=rag_service,
+    )
+
 
 
 if __name__ == "__main__":
