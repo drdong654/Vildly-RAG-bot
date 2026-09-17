@@ -18,6 +18,9 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       KB_DATABASE_URL: ${KB_DATABASE_URL}
       OLLAMA_HOST: ${OLLAMA_HOST}
+      LLM_PROVIDER: ${LLM_PROVIDER}
+      LLM_MODEL: ${LLM_MODEL}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
 
     depends_on:
       - db
@@ -34,6 +37,9 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       KB_DATABASE_URL: ${KB_DATABASE_URL}
       OLLAMA_HOST: ${OLLAMA_HOST}
+      LLM_PROVIDER: ${LLM_PROVIDER}
+      LLM_MODEL: ${LLM_MODEL}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
     depends_on:
       - db
       - ollama
