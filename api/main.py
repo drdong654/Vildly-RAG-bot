@@ -11,6 +11,12 @@ from bot.db.repositories.users import UserRepository
 from sqladmin import Admin
 from api.admin import UserAdmin
 
+from pydantic import BaseModel, Field
+
+from bot.rag.agent import build_agent
+from bot.rag.service import RagService
+
+
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -46,3 +52,25 @@ async def get_user(telegram_id: int, users: UserRepository = Depends(get_users))
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     return user
+
+rag_service = RagService(build_agent())
+def get_rag() -> RagService:
+    return rag_service
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1)
+
+
+class AskResponse(BaseModel):
+    answer: str
+
+
+
+
+
+@app.post("/ask", response_model=AskResponse)
+async def ask_question(body: AskRequest,
+                       rag: RagService = Depends(get_rag)):
+    answer = await rag.answer(body.question)
+
+    return AskResponse(answer=answer)
